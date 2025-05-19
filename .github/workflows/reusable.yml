@@ -3,31 +3,36 @@ name: Template Run PowerShell Script e213ff0f-5d5c-4791-802d-52ea3e7be1f1
 on:
   workflow_call:
     inputs:
-      scriptType:
+      targetType:
         required: true
         type: string
         description: "'inlineScript' or 'filePath'"
-      scriptName:
+      filePath:
         required: false
         type: string
-        description: "Path to the script file (required if scriptType is 'filePath')"
+        description: "Path to the script file (required if targetType is 'filePath')"
       arguments:
         required: false
         type: string
         description: "Arguments to pass to the script"
-      inlineScript:
+      script:
         required: false
         type: string
-        description: "Inline PowerShell script (required if scriptType is 'inlineScript')"
+        description: "Inline PowerShell script (required if targetType is 'inlineScript')"
       workingFolder:
         required: false
         type: string
         description: "Working folder"
-      failOnStandardError:
+      errorPreference:
+        required: false
+        type: string
+        default: Stop
+        description: "Error preference (Stop or Continue)"
+      ignoreLASTEXITCODE:
         required: false
         type: boolean
-        default: true
-        description: "Fail on standard error"
+        default: false
+        description: "Ignore the last exit code"
 
 jobs:
   powershell-task:
@@ -40,7 +45,9 @@ jobs:
       - name: Run PowerShell Script
         shell: pwsh
         run: |
-          $failOnError = if ('${{ inputs.failOnStandardError }}' -eq 'true') { 'Stop' } else { 'Continue' }
+          $errorPreference = '${{ inputs.errorPreference }}'
+          $ignoreLASTEXITCODE = ${{ inputs.ignoreLASTEXITCODE }}
+          $ErrorActionPreference = $errorPreference
 
           # Resolve working folder and verify its existence
           $workingFolder = if ('${{ inputs.workingFolder }}' -ne '') { '${{ inputs.workingFolder }}' } else { '.' }
@@ -50,19 +57,23 @@ jobs:
           }
           Set-Location -Path $workingFolder
 
-          if ('${{ inputs.scriptType }}' -eq 'inlineScript') {
+          if ('${{ inputs.targetType }}' -eq 'inlineScript') {
             Write-Host "Running inline script..."
-            Invoke-Expression "${{ inputs.inlineScript }}"
-          } elseif ('${{ inputs.scriptType }}' -eq 'filePath') {
+            Invoke-Expression "${{ inputs.script }}"
+          } elseif ('${{ inputs.targetType }}' -eq 'filePath') {
             Write-Host "Running script from file path..."
-            $scriptPath = "${{ inputs.scriptName }}"
+            $scriptPath = "${{ inputs.filePath }}"
             if (Test-Path $scriptPath) {
               & $scriptPath ${{ inputs.arguments }}
+              if (-not $ignoreLASTEXITCODE -and $LASTEXITCODE -ne 0) {
+                Write-Error "Script exited with a non-zero exit code: $LASTEXITCODE"
+                exit $LASTEXITCODE
+              }
             } else {
               Write-Error "Script file not found: $scriptPath"
               exit 1
             }
           } else {
-            Write-Error "Invalid scriptType provided: '${{ inputs.scriptType }}'"
+            Write-Error "Invalid targetType provided: '${{ inputs.targetType }}'"
             exit 1
           }
