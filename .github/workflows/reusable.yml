@@ -45,9 +45,9 @@ jobs:
       - name: Run PowerShell Script
         shell: pwsh
         run: |
-          $errorPreference = '${{ inputs.errorPreference }}'
+          # Set error preference
+          $ErrorActionPreference = '${{ inputs.errorPreference }}'
           $ignoreLASTEXITCODE = ${{ inputs.ignoreLASTEXITCODE }}
-          $ErrorActionPreference = $errorPreference
 
           # Resolve working folder and verify its existence
           $workingFolder = if ('${{ inputs.workingFolder }}' -ne '') { '${{ inputs.workingFolder }}' } else { '.' }
@@ -57,9 +57,15 @@ jobs:
           }
           Set-Location -Path $workingFolder
 
+          # Execute the script based on targetType
           if ('${{ inputs.targetType }}' -eq 'inlineScript') {
             Write-Host "Running inline script..."
-            Invoke-Expression "${{ inputs.script }}"
+            try {
+              Invoke-Expression "${{ inputs.script }}"
+            } catch {
+              Write-Error "Inline script execution failed with error: $_"
+              exit 1
+            }
           } elseif ('${{ inputs.targetType }}' -eq 'filePath') {
             Write-Host "Running script from file path..."
             $scriptPath = "${{ inputs.filePath }}"
