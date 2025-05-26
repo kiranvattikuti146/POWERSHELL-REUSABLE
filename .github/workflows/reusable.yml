@@ -63,17 +63,34 @@ jobs:
             try {
               Invoke-Expression "${{ inputs.script }}"
             } catch {
-              Write-Error "Inline script execution failed with error: $_"
-              exit 1
+              if ($ErrorActionPreference -eq 'Stop') {
+                Write-Error "Inline script execution failed with error: $_"
+                exit 1
+              } else {
+                Write-Warning "Inline script execution encountered an error: $_"
+              }
             }
           } elseif ('${{ inputs.targetType }}' -eq 'filePath') {
             Write-Host "Running script from file path..."
             $scriptPath = "${{ inputs.filePath }}"
             if (Test-Path $scriptPath) {
-              & $scriptPath ${{ inputs.arguments }}
-              if (-not $ignoreLASTEXITCODE -and $LASTEXITCODE -ne 0) {
-                Write-Error "Script exited with a non-zero exit code: $LASTEXITCODE"
-                exit $LASTEXITCODE
+              try {
+                & $scriptPath ${{ inputs.arguments }}
+                if (-not $ignoreLASTEXITCODE -and $LASTEXITCODE -ne 0) {
+                  if ($ErrorActionPreference -eq 'Stop') {
+                    Write-Error "Script exited with a non-zero exit code: $LASTEXITCODE"
+                    exit $LASTEXITCODE
+                  } else {
+                    Write-Warning "Script exited with a non-zero exit code: $LASTEXITCODE"
+                  }
+                }
+              } catch {
+                if ($ErrorActionPreference -eq 'Stop') {
+                  Write-Error "Script execution failed with error: $_"
+                  exit 1
+                } else {
+                  Write-Warning "Script execution encountered an error: $_"
+                }
               }
             } else {
               Write-Error "Script file not found: $scriptPath"
