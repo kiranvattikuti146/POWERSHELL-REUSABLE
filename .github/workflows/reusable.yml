@@ -1,9 +1,9 @@
 # ====================================================================================================
-#           Task        : Powershell
-#           Description : Run powershell script with version v2
+#           Task        : Powershell-V2
+#           Description : use this task to run powershell script on windows,linux
 #           Version     : V2
 #           Author      : kiran
-#           Help        : https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/powershell-v2
+#           Help        :https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/powershell-v2?view=azure-pipelines
 # ==================================================================================================== 
 
 name: Template Run PowerShell Script e213ff0f-5d5c-4791-802d-52ea3e7be1f1
