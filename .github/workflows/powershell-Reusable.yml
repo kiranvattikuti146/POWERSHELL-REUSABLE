@@ -52,6 +52,8 @@ jobs:
 
       - name: Run PowerShell Script
         shell: pwsh
+        env:
+          MIGRATE_SECRET: ${{ secrets.MIGRATE_SECRET }}
         run: |
           # Set error preference
           $ErrorActionPreference = '${{ inputs.errorPreference }}'
@@ -64,6 +66,9 @@ jobs:
             exit 1
           }
           Set-Location -Path $workingFolder
+
+          # Access MIGRATE_SECRET
+          Write-Host "Using MIGRATE_SECRET: $env:MIGRATE_SECRET"
 
           # Execute the script based on targetType
           if ('${{ inputs.targetType }}' -eq 'inlineScript') {
