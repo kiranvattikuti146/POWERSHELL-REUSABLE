@@ -1,11 +1,3 @@
-# ====================================================================================================
-#           Task        : Powershell-V2
-#           Description : use this task to run powershell script on windows,linux
-#           Version     : V2
-#           Author      : kiran
-#           Help        : https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/powershell-v2?view=azure-pipelines
-# ==================================================================================================== 
-
 name: Template Run PowerShell Script e213ff0f-5d5c-4791-802d-52ea3e7be1f1
 
 on:
@@ -42,7 +34,9 @@ on:
         default: false
         description: "Ignore the last exit code"
     secrets:
-      MIGRATE_SECRET:
+      username:
+        required: true
+      password:
         required: true
 
 jobs:
@@ -55,8 +49,6 @@ jobs:
 
       - name: Run PowerShell Script
         shell: pwsh
-        env:
-          MIGRATE_SECRET: ${{ secrets.MIGRATE_SECRET }}
         run: |
           # Set error preference
           $ErrorActionPreference = '${{ inputs.errorPreference }}'
@@ -70,8 +62,11 @@ jobs:
           }
           Set-Location -Path $workingFolder
 
-          # Access MIGRATE_SECRET
-          Write-Host "Using MIGRATE_SECRET: $env:MIGRATE_SECRET"
+          # Retrieve secrets
+          $username = "${{ secrets.username }}"
+          $password = "${{ secrets.password }}"
+          $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+          $credential = New-Object System.Management.Automation.PSCredential ($username, $securePassword)
 
           # Execute the script based on targetType
           if ('${{ inputs.targetType }}' -eq 'inlineScript') {
