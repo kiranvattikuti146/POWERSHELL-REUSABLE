@@ -33,11 +33,6 @@ on:
         type: boolean
         default: false
         description: "Ignore the last exit code"
-    secrets:
-      username:
-        required: true
-      password:
-        required: true
 
 jobs:
   powershell-task:
@@ -61,12 +56,6 @@ jobs:
             exit 1
           }
           Set-Location -Path $workingFolder
-
-          # Retrieve secrets
-          $username = "${{ secrets.username }}"
-          $password = "${{ secrets.password }}"
-          $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential ($username, $securePassword)
 
           # Execute the script based on targetType
           if ('${{ inputs.targetType }}' -eq 'inlineScript') {
