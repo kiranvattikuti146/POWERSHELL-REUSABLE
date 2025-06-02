@@ -1,3 +1,5 @@
+reusable:
+
 name: Template Run PowerShell Script e213ff0f-5d5c-4791-802d-52ea3e7be1f1
 
 on:
@@ -36,28 +38,28 @@ on:
       warningPreference:
         required: false
         type: string
-        default: default
-        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. WarningPreference. Default: default."
+        default: SilentlyContinue
+        description: "'SilentlyContinue' | 'Stop' | 'Continue' | 'Inquire' | 'Ignore' | 'Suspend' | 'Break'. WarningPreference."
       informationPreference:
         required: false
         type: string
-        default: default
-        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. InformationPreference. Default: default."
+        default: SilentlyContinue
+        description: "'SilentlyContinue' | 'Stop' | 'Continue' | 'Inquire' | 'Ignore' | 'Suspend' | 'Break'. InformationPreference."
       verbosePreference:
         required: false
         type: string
-        default: default
-        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. VerbosePreference. Default: default."
+        default: SilentlyContinue
+        description: "'SilentlyContinue' | 'Stop' | 'Continue' | 'Inquire' | 'Ignore' | 'Suspend' | 'Break'. VerbosePreference."
       debugPreference:
         required: false
         type: string
-        default: default
-        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. DebugPreference. Default: default."
+        default: SilentlyContinue
+        description: "'SilentlyContinue' | 'Stop' | 'Continue' | 'Inquire' | 'Ignore' | 'Suspend' | 'Break'. DebugPreference."
       progressPreference:
         required: false
         type: string
-        default: default
-        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. ProgressPreference. Default: default."
+        default: SilentlyContinue
+        description: "'SilentlyContinue' | 'Stop' | 'Continue' | 'Inquire' | 'Ignore' | 'Suspend' | 'Break'. ProgressPreference."
       failOnStderr:
         required: false
         type: boolean
@@ -87,11 +89,11 @@ jobs:
         run: |
           # Set preferences
           $ErrorActionPreference = '${{ inputs.errorPreference }}'
-          $WarningPreference = '${{ inputs.warningPreference }}'
-          $InformationPreference = '${{ inputs.informationPreference }}'
-          $VerbosePreference = '${{ inputs.verbosePreference }}'
-          $DebugPreference = '${{ inputs.debugPreference }}'
-          $ProgressPreference = '${{ inputs.progressPreference }}'
+          $WarningPreference = if ('${{ inputs.warningPreference }}' -eq 'default') { 'SilentlyContinue' } else { '${{ inputs.warningPreference }}' }
+          $InformationPreference = if ('${{ inputs.informationPreference }}' -eq 'default') { 'SilentlyContinue' } else { '${{ inputs.informationPreference }}' }
+          $VerbosePreference = if ('${{ inputs.verbosePreference }}' -eq 'default') { 'SilentlyContinue' } else { '${{ inputs.verbosePreference }}' }
+          $DebugPreference = if ('${{ inputs.debugPreference }}' -eq 'default') { 'SilentlyContinue' } else { '${{ inputs.debugPreference }}' }
+          $ProgressPreference = if ('${{ inputs.progressPreference }}' -eq 'default') { 'SilentlyContinue' } else { '${{ inputs.progressPreference }}' }
           $ignoreLASTEXITCODE = ${{ inputs.ignoreLASTEXITCODE }}
           $failOnStderr = ${{ inputs.failOnStderr }}
           $showWarnings = ${{ inputs.showWarnings }}
