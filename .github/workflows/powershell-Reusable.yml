@@ -1,3 +1,5 @@
+reusable:
+
 name: Template Run PowerShell Script e213ff0f-5d5c-4791-802d-52ea3e7be1f1
 
 on:
@@ -33,6 +35,46 @@ on:
         type: boolean
         default: false
         description: "Ignore the last exit code"
+      warningPreference:
+        required: false
+        type: string
+        default: default
+        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. WarningPreference. Default: default."
+      informationPreference:
+        required: false
+        type: string
+        default: default
+        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. InformationPreference. Default: default."
+      verbosePreference:
+        required: false
+        type: string
+        default: default
+        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. VerbosePreference. Default: default."
+      debugPreference:
+        required: false
+        type: string
+        default: default
+        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. DebugPreference. Default: default."
+      progressPreference:
+        required: false
+        type: string
+        default: default
+        description: "'default' | 'stop' | 'continue' | 'silentlyContinue'. ProgressPreference. Default: default."
+      failOnStderr:
+        required: false
+        type: boolean
+        default: false
+        description: "Fail on Standard Error. Default: false."
+      showWarnings:
+        required: false
+        type: boolean
+        default: false
+        description: "Show warnings as Azure DevOps warnings. Default: false."
+      runScriptInSeparateScope:
+        required: false
+        type: boolean
+        default: false
+        description: "Run script in a separate scope. Default: false."
 
 jobs:
   powershell-task:
@@ -45,9 +87,17 @@ jobs:
       - name: Run PowerShell Script
         shell: pwsh
         run: |
-          # Set error preference
+          # Set preferences
           $ErrorActionPreference = '${{ inputs.errorPreference }}'
+          $WarningPreference = '${{ inputs.warningPreference }}'
+          $InformationPreference = '${{ inputs.informationPreference }}'
+          $VerbosePreference = '${{ inputs.verbosePreference }}'
+          $DebugPreference = '${{ inputs.debugPreference }}'
+          $ProgressPreference = '${{ inputs.progressPreference }}'
           $ignoreLASTEXITCODE = ${{ inputs.ignoreLASTEXITCODE }}
+          $failOnStderr = ${{ inputs.failOnStderr }}
+          $showWarnings = ${{ inputs.showWarnings }}
+          $runScriptInSeparateScope = ${{ inputs.runScriptInSeparateScope }}
 
           # Resolve working folder and verify its existence
           $workingFolder = if ('${{ inputs.workingFolder }}' -ne '') { '${{ inputs.workingFolder }}' } else { '.' }
